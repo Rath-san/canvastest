@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import './App.css';
-import Canvas from './components/Canvas.draw.';
+// import Canvas from './components/Canvas.draw';
+import Canvas from './components/Canvas';
 import Controls from './components/Controls';
 
 interface CanvasControls {

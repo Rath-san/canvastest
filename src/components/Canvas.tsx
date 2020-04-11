@@ -1,21 +1,11 @@
 import React, { useRef, useEffect, useState, useCallback } from 'react';
+import { TextInput, inputItem } from './canvas/TextInput';
+import { Coordinate } from '../models/canvas';
 
 interface CanvasProps {
     width: number;
     height: number;
     activeTool?: number;
-}
-
-type Coordinate = {
-    x: number;
-    y: number;
-};
-
-interface inputItem {
-    id: string;
-    text: string;
-    coordinate: Coordinate | undefined;
-    edit: boolean;
 }
 
 const Canvas = ({ width, height, activeTool }: CanvasProps) => {
@@ -43,6 +33,15 @@ const Canvas = ({ width, height, activeTool }: CanvasProps) => {
         return { x: event.pageX - canvas.offsetLeft, y: event.pageY - canvas.offsetTop };
     };
 
+    const spawnInput = useCallback((event: MouseEvent) => {
+        setTypingPoints(prevState => ([...prevState, {
+            id: `${Math.random()}`,
+            text: 'string',
+            coordinate: getCoordinates(event),
+            edit: false
+        }]))
+    }, []);
+
     useEffect(() => {
         if (!canvasRef.current) {
             return;
@@ -52,16 +51,7 @@ const Canvas = ({ width, height, activeTool }: CanvasProps) => {
         return () => {
             canvas.removeEventListener('mousedown', spawnInput);
         };
-    }, [startType]);
-
-    const spawnInput = useCallback((event: MouseEvent) => {
-        setTypingPoints(prevState => ([...prevState, {
-            id: `${Math.random()}`,
-            text: 'string',
-            coordinate: getCoordinates(event),
-            edit: false
-        }]))
-    }, []);
+    }, [spawnInput]);
 
     // const paint = useCallback(
     //     (event: MouseEvent) => {
@@ -83,70 +73,71 @@ const Canvas = ({ width, height, activeTool }: CanvasProps) => {
 
     // ...other stuff here
 
-    const drawLine = (originalMousePosition: Coordinate, newMousePosition: Coordinate) => {
-        if (!canvasRef.current) {
-            return;
-        }
-        const canvas: HTMLCanvasElement = canvasRef.current;
-        const context = canvas.getContext('2d');
-        if (context) {
-            context.strokeStyle = 'red';
-            context.lineJoin = 'round';
-            context.lineWidth = 5;
-
-            context.beginPath();
-            context.moveTo(originalMousePosition.x, originalMousePosition.y);
-            context.lineTo(newMousePosition.x, newMousePosition.y);
-            context.closePath();
-
-            context.stroke();
-        }
-    };
-
-    // useEffect(() => {
+    // const drawLine = (originalMousePosition: Coordinate, newMousePosition: Coordinate) => {
     //     if (!canvasRef.current) {
     //         return;
     //     }
     //     const canvas: HTMLCanvasElement = canvasRef.current;
-    //     canvas.addEventListener('mousemove', paint);
-    //     return () => {
-    //         canvas.removeEventListener('mousemove', paint);
-    //     };
-    // }, [paint]);
+    //     const context = canvas.getContext('2d');
+    //     if (context) {
+    //         context.strokeStyle = 'red';
+    //         context.lineJoin = 'round';
+    //         context.lineWidth = 5;
+
+    //         context.beginPath();
+    //         context.moveTo(originalMousePosition.x, originalMousePosition.y);
+    //         context.lineTo(newMousePosition.x, newMousePosition.y);
+    //         context.closePath();
+
+    //         context.stroke();
+    //     }
+    // };
+
+    useEffect(() => {
+        if (!canvasRef.current) {
+            return;
+        }
+        const canvas: HTMLCanvasElement = canvasRef.current;
+        canvas.addEventListener('mousemove', paint);
+        return () => {
+            canvas.removeEventListener('mousemove', paint);
+        };
+    }, [paint]);
 
     // const exitPaint = useCallback(() => {
     //     setIsPainting(false);
     //     setMousePosition(undefined);
     // }, []);
 
-    // useEffect(() => {
-    //     if (!canvasRef.current) {
-    //         return;
-    //     }
-    //     const canvas: HTMLCanvasElement = canvasRef.current;
-    //     canvas.addEventListener('mouseup', exitPaint);
-    //     canvas.addEventListener('mouseleave', exitPaint);
-    //     return () => {
-    //         canvas.removeEventListener('mouseup', exitPaint);
-    //         canvas.removeEventListener('mouseleave', exitPaint);
-    //     };
-    // }, [exitPaint]);
+    useEffect(() => {
+        if (!canvasRef.current) {
+            return;
+        }
+        const canvas: HTMLCanvasElement = canvasRef.current;
+        canvas.addEventListener('mouseup', exitPaint);
+        canvas.addEventListener('mouseleave', exitPaint);
+        return () => {
+            canvas.removeEventListener('mouseup', exitPaint);
+            canvas.removeEventListener('mouseleave', exitPaint);
+        };
+    }, [exitPaint]);
 
     
 
     return (
         <div className='canvas-wrapper' style={{position: `relative`}}>
-            {(typingPoints as inputItem[]).map(({id, edit, text, coordinate}) => (
-                <div
-                    key={id}
-                    style={{
-                        position: `absolute`,
-                        top: coordinate?.y,
-                        left: coordinate?.x
-                    }}
-                >
-                    <input type="text" value={text}/>
-                </div>
+            {(typingPoints as inputItem[]).map((inputItem) => (
+                // <div
+                //     key={id}
+                //     style={{
+                //         position: `absolute`,
+                //         top: coordinate?.y,
+                //         left: coordinate?.x
+                //     }}
+                // >
+                //     <input type="text" value={text}/>
+                // </div>
+                <TextInput {...inputItem} key={inputItem.id}/>
             ))}
             <canvas ref={canvasRef} height={height} width={width} />
         </div>
