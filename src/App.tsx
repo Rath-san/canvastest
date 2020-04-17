@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import Concrete from 'concretejs';
+import React, { useState, useEffect } from 'react';
 import './App.css';
-// import Canvas from './components/Canvas.draw';
-import Canvas from './components/Canvas';
+import Canvas from './components/Canvas.draw';
+
 import Controls from './components/Controls';
+import { Tools, Tool, ToolNumeric } from './models/tools';
 
 interface CanvasControls {
   color: string;
@@ -10,20 +12,26 @@ interface CanvasControls {
   text?: any;
 }
 
+interface IState {
+  activeTool: ToolNumeric
+}
+
 function App() {
 
-  // const [canvasControls, setCanvasControls] = useState<CanvasControls>({
-  //   color: 'red',
-  //   size: 2,
-  //   text: ''
-  // });
+  const initialState: IState = {
+    activeTool: 1
+  }
 
-  // const [activeTool, setActiveTool] = useState(null);
+  const [state, setState] = useState(initialState)
+
+  const setActiveTool = (activeTool: ToolNumeric) => {
+      setState(prevState => ({...prevState, activeTool}))
+  }
 
   return (
-    <div className="App">
-      <Canvas />
-      <Controls/>
+    <div className="App" onDragOver={(e) => e.preventDefault()}>
+      <Canvas activeTool={state.activeTool}/>
+      <Controls onToolChoose={setActiveTool}/>
     </div>
   );
 }

@@ -1,8 +1,6 @@
-export const getCoordinates = (event: MouseEvent, canvasRef: React.RefObject<HTMLCanvasElement>) => {
-    if (!canvasRef.current) {
+export const getCoordinates = (event: React.MouseEvent | React.DragEvent, htmlElement: any) => {
+    if (!htmlElement) {
         return;
     }
-
-    const canvas: HTMLCanvasElement = canvasRef.current;
-    return { x: event.pageX - canvas.offsetLeft, y: event.pageY - canvas.offsetTop };
+    return { x: event.pageX - htmlElement.offsetLeft, y: event.pageY - htmlElement.offsetTop };
 };

@@ -1,8 +1,8 @@
 import React, { useState, useRef } from 'react'
 import { Coordinate } from '../../models/canvas';
 import { useEffect } from 'react';
-import { cleanup } from '@testing-library/react';
 import { useCallback } from 'react';
+import { getCoordinates } from './helpers';
 
 export interface inputItem {
     id: string;
@@ -14,26 +14,11 @@ export interface inputItem {
 export const TextInput = (props: inputItem) => {
 
     const {id, coordinate} = props;
-
-    // const [state, setState] = useState({...props})
     const [text, setText] = useState(props.text);
     const [edit, setEdit] = useState(props.edit);
-    const [isMoving, setIsMoving] = useState(false);
+    const [position, setPosition] = useState(coordinate);
 
-    const dragControl = useRef(null);
-
-    const moving = useCallback(() => {
-            
-        },
-        [],
-    )
-
-    useEffect(() => {
-        
-        return () => {
-            // cleanup
-        }
-    }, [moving])
+    const dragControlRef = useRef(null);
 
     const toggleEdit = () => {
         setEdit(!edit);
@@ -47,15 +32,23 @@ export const TextInput = (props: inputItem) => {
         setEdit(false);
     }
 
+    const handleOnDragEnd = (event: React.DragEvent<HTMLDivElement>) => {
+        const dragControl = dragControlRef.current;
+        const coords = getCoordinates(event, dragControl)
+        setPosition(coords);
+    }
+
     return (
         <div 
             style={{
                 position: `absolute`,
-                top: coordinate?.y,
-                left: coordinate?.x
+                top: position?.y,
+                left: position?.x
             }}
+            draggable
+            onDragEnd={handleOnDragEnd}
         >
-            <div className="drag-control" ref={dragControl} style={{display: `inline-block`, cursor: `move`}}>
+            <div className="drag-control" ref={dragControlRef} style={{display: `inline-block`, cursor: `move`}}>
                 <i style={{padding: `1rem`}}>i</i>
             </div>
             <input type="text" value={text} onChange={updateValue} onBlur={stopEdit} disabled={!edit}/>
